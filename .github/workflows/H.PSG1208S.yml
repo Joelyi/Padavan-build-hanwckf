@@ -44,9 +44,9 @@ jobs:
       - name: Recovery bin files download from remote
         env:
           T_NAMES: "PSG1208S"                # 设备名字数组
-          BASE_PATH: padavan                # 基础目录
-          THEME_PATH: theme                 # 主题目录
-          WORK_PATH: /opt/rt-n56u           # 工作目录 一定要加 /
+          BASE_PATH: padavan                 # 基础目录
+          THEME_PATH: Theme/theme            # 主题目录
+          WORK_PATH: /opt/rt-n56u            # 工作目录 一定要加 /
         run: |
           # 循环替换自定义默认模板和构建，单个设备的 sh 拷贝 t_item 需要编译的固件名字
           for t_item in $T_NAMES;
@@ -59,18 +59,26 @@ jobs:
             mv -f $BASE_PATH/$t_item/defaults.h $WORK_PATH/trunk/user/shared/defaults.h
             echo "${t_item} 配置文件拷贝成功"
           fi
+          if [ -f $BASE_PATH/$t_item/board.h ] ; then
+            mv -f $BASE_PATH/$t_item/board.h $WORK_PATH/trunk/configs/boards/PSG1208/board.h
+            echo "${t_item} board.h文件拷贝成功"
+          fi
+          if [ -f $BASE_PATH/$t_item/board.mk ] ; then
+            mv -f $BASE_PATH/$t_item/board.mk $WORK_PATH/trunk/configs/boards/PSG1208/board.mk
+            echo "${t_item} board.mk文件拷贝成功"
+          fi
           if [ -f $BASE_PATH/$t_item/kernel-3.4.x.config ] ; then
             mv -f $BASE_PATH/$t_item/kernel-3.4.x.config $WORK_PATH/trunk/configs/boards/PSG1208/kernel-3.4.x.config
             echo "${t_item} kernel文件拷贝成功"
           fi
-          if [ ! -d $BASE_PATH/$t_item/$THEME_PATH ] ; then
-            echo "${BASE_PATH}/${t_item}/${THEME_PATH} 自定义主题文件夹未找到"
+          if [ ! -d $BASE_PATH/$THEME_PATH ] ; then
+            echo "${BASE_PATH}/${THEME_PATH} 自定义主题文件夹未找到"
           elif [! -d $WORK_PATH/$THEME_PATH ] ; then
-                cp -r $BASE_PATH/$t_item/$THEME_PATH  $WORK_PATH/
+                cp -r $BASE_PATH/$THEME_PATH  $WORK_PATH/
                 echo "${THEME_PATH} 自定义主题文件夹拷贝成功"  
              else
                 rm -rf $WORK_PATH/$THEME_PATH
-                cp -r $BASE_PATH/$t_item/$THEME_PATH  $WORK_PATH/
+                cp -r $BASE_PATH/$THEME_PATH  $WORK_PATH/
                 sudo rm -rf $WORK_PATH/trunk/user/www/n56u_ribbon_fixed/bootstrap
                 sudo rm -rf $WORK_PATH/trunk/user/www/n56u_ribbon_fixed/images
                 cp -rf $WORK_PATH/$THEME_PATH/. $WORK_PATH/trunk/user/www/n56u_ribbon_fixed
